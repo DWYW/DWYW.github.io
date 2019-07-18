@@ -108,18 +108,27 @@
       }
 
       var query = queryParse(location.href)
-      var redirectQuery = queryParse(decodeURIComponent(query.redirect))
+      var redirectQuery = {}
+
+      if (query.redirect) {
+        redirectQuery = queryParse(decodeURIComponent(query.redirect))
+      }
+
+      if (!query.code || !query.redirect) {
+        document.body.innerHTML = 'Lack of necessary parameters'
+        return false
+      }
 
       ajax({
         url: `https://github.com/login/oauth/access_token`,
         method: 'POST',
         data: {
-          client_id, 
-          client_secret, 
-          code: query,
+          code: query.code,
+          client_id: redirectQuery.client_id, 
+          client_secret: redirectQuery.client_secret, 
           redirect_uri: redirectQuery.redirect
         },
-        
+
         success: function (res) {
           document.body.innerHTML = '<a href='+redirectQuery.redirect+'>' +redirectQuery.redirect+ '</a>' 
         },
